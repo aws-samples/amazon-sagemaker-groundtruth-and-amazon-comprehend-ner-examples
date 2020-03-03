@@ -1,0 +1,15 @@
+{
+  "Records": [
+    {
+      "s3": {
+        "s3SchemaVersion": "1.0",
+        "bucket": {
+          "name": "vm-gtner-blog"
+        },
+        "object": {
+          "key": "output.manifest"
+        }
+      }
+    }
+  ]
+}
