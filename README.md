@@ -1,5 +1,12 @@
 # Companion Codes for AWS Blog Post "Developing NER models on Amazon SageMaker"
 
+20200519:
+
+- v1.x is the version with Spacy and huggingface transformers. This is now
+  tracked on a separate branch named `spacy-and-transformers`.
+- Moving forwards, the `master` branch replaces these custom algorithms with
+  Comprehend Custom NER.
+
 This repository contains the source CloudFormation template that the blog post
 uses to setup the data conversion pipeline, a notebook instance populated with
 two NER-training notebooks, and upload sample corpus to an S3 bucket.
@@ -16,4 +23,5 @@ aws deploy --template-file cfn.yaml --stack-name <value>
 ```
 
 ## License Summary
+
 This sample code is made available under the MIT-0 License. See the LICENSE file.
