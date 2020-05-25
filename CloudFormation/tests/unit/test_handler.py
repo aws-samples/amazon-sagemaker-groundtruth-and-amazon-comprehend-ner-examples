@@ -1,6 +1,6 @@
 import pytest
 
-from gtam2conll2003 import app
+from converter import app
 
 
 @pytest.fixture()
@@ -22,4 +22,4 @@ def apigw_event():
 def test_lambda_handler(apigw_event, mocker):
     ret = app.lambda_handler(apigw_event, "")
     print(ret)
-    assert ("s3fs" in ret) and ("spacy" in ret)
+    assert "s3fs" in ret["metadata"]

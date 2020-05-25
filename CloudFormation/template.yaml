@@ -1,3 +1,6 @@
+# FIXME:
+# - rename spacy layer to s3fs layer
+
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: >
@@ -18,29 +21,6 @@ Parameters:
     Type: String
     Default: gtner-blog
 
-  NotebookName:
-    Description: Enter the name of the SageMaker notebook instance. Default is gtner-blog.
-    Type: String
-    Default: gtner-blog
-
-  UseVPC:
-    Description: "Whether to launch the notebook into a VPC. Default is false."
-    Type: String
-    AllowedValues:
-      - "true"
-      - "false"
-    Default: "false"
-
-  PrivateSubnet:
-    # Use String rather than AWS::EC2::Subnet::Id to allow for empty values
-    Type: String
-    Description: The ID of the subnet in a VPC to which you would like to have a connectivity from your ML compute instance
-
-  SecurityGroup:
-    # Use String rather than AWS::EC2::SecurityGroup::Id to allow for empty values
-    Type: String
-    Description: The security group to provide the notebook access within the VPC
-
 Metadata:
   AWS::CloudFormation::Interface:
     ParameterLabels:
@@ -48,14 +28,6 @@ Metadata:
         default: 12-digit AWS account id (or "default")
       BucketName:
         default: S3 Bucket Name
-      NotebookName:
-        default: Notebook Name
-      UseVPC:
-        default: Use existing VPC?
-      PrivateSubnet:
-        default: Private Subnet Id
-      SecurityGroup:
-        default: Security Group Id
 
     ParameterGroups:
       - Label:
@@ -63,17 +35,9 @@ Metadata:
         Parameters:
           - BucketName
           - AccountId
-      - Label:
-          default: Notebook
-        Parameters:
-          - NotebookName
-          - UseVPC
-          - SecurityGroup
-          - PrivateSubnet
 
 Conditions:
   SamLocal: !Not [!Equals [!Ref AccountId, default]]
-  UseOwnVPC: !Equals [!Ref UseVPC, "true"]
 
 Globals:
   Function:
@@ -102,7 +66,7 @@ Resources:
       Description: spacy-2.2.3 (SDK only) and s3fs-0.4.0.
       LicenseInfo: MIT
 
-  ConllFunction:
+  ConverterFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: conll-converter/
@@ -126,79 +90,10 @@ Resources:
                   - Name: suffix
                     Value: manifests/output/output.manifest
 
-  SMNotebook:
-    Type: AWS::SageMaker::NotebookInstance
-    Properties:
-      DefaultCodeRepository: https://github.com/aws-samples/amazon-sagemaker-groundtruth-ner.git
-      InstanceType: ml.t3.medium
-      NotebookInstanceName: !Ref NotebookName
-      RoleArn: !GetAtt SMExecutionRole.Arn
-      LifecycleConfigName: !GetAtt SMLifecycleConfig.NotebookInstanceLifecycleConfigName
-      SubnetId: !If [UseOwnVPC, !Ref PrivateSubnet, !Ref "AWS::NoValue"]
-      SecurityGroupIds:
-        - !If [UseOwnVPC, !Ref SecurityGroup, !Ref "AWS::NoValue"]
-
-  SMLifecycleConfig:
-    Type: AWS::SageMaker::NotebookInstanceLifecycleConfig
-    Properties:
-      OnCreate:
-        - Content:
-            Fn::Base64: !Sub |
-              #!/usr/bin/env bash
-              # A lifecycle configuration for SageMaker notebook instances. Can be used for
-              # "on-create" or "on-start". The later is useful to ensure S3 has pristine
-              # sample corpus every time the notebook instance starts.
-              set -e
-
-              # On-create: default git repo not cloned yet, so source directly from origin.
-              # On-start: source from origin to ensure S3 has pristine copies.
-              ORIGIN=aws-samples/amazon-sagemaker-groundtruth-ner
-              BUCKET=${S3Bucket}
-              for i in doc-00.txt doc-01.txt doc-02.txt
-              do
-                  curl --silent --location https://raw.githubusercontent.com/$ORIGIN/master/refdata/$i \
-                      | aws s3 cp - s3://$BUCKET/sampleraw/$i
-              done
-      OnStart:
-        - Content:
-            Fn::Base64: !Sub |
-              #!/usr/bin/env bash
-              # A lifecycle configuration for SageMaker notebook instances. Can be used for
-              # "on-create" or "on-start". The later is useful to ensure S3 has pristine
-              # sample corpus every time the notebook instance starts.
-              set -e
-
-              # On-create: default git repo not cloned yet, so source directly from origin.
-              # On-start: source from origin to ensure S3 has pristine copies.
-              ORIGIN=aws-samples/amazon-sagemaker-groundtruth-ner
-              BUCKET=${S3Bucket}
-              for i in doc-00.txt doc-01.txt doc-02.txt
-              do
-                  curl --silent --location https://raw.githubusercontent.com/$ORIGIN/master/refdata/$i \
-                      | aws s3 cp - s3://$BUCKET/sampleraw/$i
-              done
-
-  SMExecutionRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: "Allow"
-            Principal:
-              Service:
-                - "sagemaker.amazonaws.com"
-            Action:
-              - "sts:AssumeRole"
-      Path: "/"
-      ManagedPolicyArns:
-        - "arn:aws:iam::aws:policy/AmazonSageMakerFullAccess"
-        - "arn:aws:iam::aws:policy/AmazonS3FullAccess"
-
 Outputs:
-  ConllFunction:
-    Description: "CoNLL-2003 Lambda Function ARN"
-    Value: !GetAtt ConllFunction.Arn
-  ConllFunctionIamRole:
-    Description: "Implicit IAM Role created for CoNLL-2003 function"
-    Value: !GetAtt ConllFunctionRole.Arn
+  ConverterFunction:
+    Description: "Converter Lambda Function ARN"
+    Value: !GetAtt ConverterFunction.Arn
+  ConverterFunctionIamRole:
+    Description: "Implicit IAM Role created for Converter function"
+    Value: !GetAtt ConverterFunctionRole.Arn
