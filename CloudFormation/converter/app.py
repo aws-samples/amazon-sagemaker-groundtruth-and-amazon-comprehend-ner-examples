@@ -1,10 +1,12 @@
 import csv
 import json
-from typing import Dict, List, Optional
+from pathlib import PurePath
+from typing import List, Optional
 
 import boto3
-import botocore
 import s3fs
+from mypy_boto3.s3 import S3Client
+from mypy_boto3.s3.type_defs import TagTypeDef
 
 fs = s3fs.S3FileSystem(anon=False)
 s3_client = boto3.session.Session().client("s3")
@@ -38,12 +40,13 @@ def lambda_handler(event, context):
         annwriter = csv.writer(f_ann)
         annwriter.writerow(["File", "Line", "Begin Offset", "End Offset", "Type"])
 
+        ann_file_column = PurePath(data_file).name
         # Process each line in Ground Truth's output manifest.
         for index, jsonLine in enumerate(f_gt):
-            source = GT2Comprehend.convert_to_dataset(jsonLine)
+            source = GroundTruth2Comprehend.convert_to_dataset(jsonLine)
             datawriter.writerow([source])
 
-            annotations = GT2Comprehend.convert_to_annotations(index, jsonLine)
+            annotations = GroundTruth2Comprehend.convert_to_annotations(index, jsonLine, ann_file_column)
             for entry in annotations:
                 annwriter.writerow(entry)
 
@@ -59,9 +62,7 @@ def lambda_handler(event, context):
     }
 
 
-def add_tags(
-    bucket: str, obj: str, tags: Dict[str, str], s3_client: Optional[botocore.client.S3] = None
-) -> List[Dict[str, str]]:
+def add_tags(bucket: str, obj: str, tags: TagTypeDef, s3_client: Optional[S3Client] = None) -> List[TagTypeDef]:
     """Tag the object with `tag_key = tag_value`."""
     # NOTE: `put_object_tagging()` overwrites existing tags set with a new set.
     # Hence, we do a write-after-read of tag sets to append new tags.
@@ -71,7 +72,7 @@ def add_tags(
 
     # Fetch existing tags. For the format of the response message, see
     # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/s3.html#S3.Client.get_object_tagging
-    existing_tags: List[Dict[str, str]] = s3_client.get_object_tagging(Bucket=bucket, Key=obj)["TagSet"]
+    existing_tags: List[TagTypeDef] = s3_client.get_object_tagging(Bucket=bucket, Key=obj)["TagSet"]
 
     # If there's existing tag, then we have to remove the old one, otherwise
     # put_object_tagging() complains about multiple tags with the same key.
@@ -86,23 +87,23 @@ def add_tags(
     return new_tags
 
 
-class GT2Comprehend(object):
+class GroundTruth2Comprehend(object):
     @staticmethod
-    def convert_to_dataset(self, jsonLine):
-        jsonObj = self.parse_manifest_input(jsonLine)
+    def convert_to_dataset(jsonLine):
+        jsonObj = GroundTruth2Comprehend.parse_manifest_input(jsonLine)
         return jsonObj["source"]
 
     @staticmethod
-    def convert_to_annotations(self, index, jsonLine):
+    def convert_to_annotations(index, jsonLine, input_file_name):
         annotations = []
-        jsonObj = self.parse_manifest_input(jsonLine)
-        self.labeling_job_name = self.get_labeling_job_name(jsonObj)
-        number_of_labels = len(jsonObj[self.labeling_job_name]["annotations"]["entities"])
-        labeling_job_info = jsonObj[self.labeling_job_name]["annotations"]["entities"]
+        jsonObj = GroundTruth2Comprehend.parse_manifest_input(jsonLine)
+        labeling_job_name = GroundTruth2Comprehend.get_labeling_job_name(jsonObj)
+        number_of_labels = len(jsonObj[labeling_job_name]["annotations"]["entities"])
+        labeling_job_info = jsonObj[labeling_job_name]["annotations"]["entities"]
         for ind in range(number_of_labels):
             annotations.append(
                 (
-                    self.input_file_name,
+                    input_file_name,
                     index,
                     labeling_job_info[ind]["startOffset"],
                     labeling_job_info[ind]["endOffset"],
@@ -113,7 +114,7 @@ class GT2Comprehend(object):
         return annotations
 
     @staticmethod
-    def parse_manifest_input(self, jsonLine):
+    def parse_manifest_input(jsonLine):
         try:
             jsonObj = json.loads(jsonLine)
             return jsonObj
@@ -122,15 +123,15 @@ class GT2Comprehend(object):
             raise
 
     @staticmethod
-    def get_labeling_job_name(self, jsonObj):
+    def get_labeling_job_name(jsonObj):
         for key, value in jsonObj.items():
-            if self.is_json_serializable(value):
+            if GroundTruth2Comprehend.is_json_serializable(value):
                 if "annotations" in value:
                     job_name = key
         return job_name
 
     @staticmethod
-    def is_json_serializable(self, value):
+    def is_json_serializable(value):
         try:
             json.dumps(value)
             return True

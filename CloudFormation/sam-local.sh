@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Sample usage:
-#     ./sam-local.sh <ConllFunction|GtFunction> [--debug or other sam local invoke parameters]
+#     ./sam-local.sh <ConverterFunction> [--debug or other sam local invoke parameters]
 
 FUN=''
 DRY_RUN=0
@@ -9,7 +9,7 @@ declare -a SAM_CLI_ARGS=()
 PROFILE=''
 
 usage() {
-    echo "Usage: ${BASH_SOURCE[0]##*/} <ConllFunction|GtFunction> [-h|--help] [-d|--dry-run] -- [other sam local invoke parameters]"
+    echo "Usage: ${BASH_SOURCE[0]##*/} <ConverterFunction> [-h|--help] [-d|--dry-run] -- [other sam local invoke parameters]"
 }
 
 parse_profile() {

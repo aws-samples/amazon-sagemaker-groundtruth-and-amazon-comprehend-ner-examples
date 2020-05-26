@@ -1,0 +1,2 @@
+s3fs
+boto3-stubs[ec2,s3]
