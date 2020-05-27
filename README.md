@@ -8,11 +8,11 @@
   Comprehend Custom NER.
 
 This repository contains the source CloudFormation template that the blog post
-uses to setup the data conversion pipeline, a notebook instance populated with
-two NER-training notebooks, and upload sample corpus to an S3 bucket.
+uses to setup the data conversion pipeline, and sample corpus.
 
 It is recommended to deploy a stack by following the instructions contained in
-the blog post.
+the blog post. Once the stack is deployed, you can then upload the sample corpus
+to your new bucket.
 
 To still deploy everything from this repository:
 
