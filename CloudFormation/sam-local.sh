@@ -63,7 +63,7 @@ ACCOUNT=$(aws ${PROFILE} sts get-caller-identity | jq -r '.Account')
 REGION=$(aws ${PROFILE} configure get region)
 declare -a PARAM=(--parameter-overrides
     ParameterKey=AccountId,ParameterValue=${ACCOUNT}
-    ParameterKey=Layer,ParameterValue=spacy-p38-dev:1
+    ParameterKey=Layer,ParameterValue=s3fs-p38-dev:1
 )
 cmd="sam local invoke ${PROFILE} --region ${REGION} ${PARAM[@]} --event events/${FUN}.json ${FUN} ${SAM_CLI_ARGS[@]}"
 echo $cmd
