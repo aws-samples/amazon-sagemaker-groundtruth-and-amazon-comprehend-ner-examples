@@ -61,7 +61,7 @@ Resources:
       CompatibleRuntimes:
         - python3.8
       Content:
-        S3Bucket: amazon-sagemaker-groundtruth-ner
+        S3Bucket: blog-groundtruth-comprehend-ner
         S3Key: lambda-layer-s3fs-p38.zip
       Description: "s3fs-0.4.2 and boto3_stubs[s3]-1.13.16.0"
       LicenseInfo: MIT

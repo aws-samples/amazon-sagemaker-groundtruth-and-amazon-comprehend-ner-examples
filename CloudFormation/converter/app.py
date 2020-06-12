@@ -18,8 +18,9 @@ trs = str.maketrans("$[]", "___")
 def lambda_handler(event, context):
     s3_event = event["Records"][0]["s3"]
     input_file = f"s3://{s3_event['bucket']['name']}/{s3_event['object']['key']}"
-    data_file = input_file[:-8] + "txt"
-    ann_file = input_file[:-8] + "csv"
+    gt_manifest_folder, gt_manifest_fname = input_file.rsplit("/", 1)
+    data_file = gt_manifest_folder + "/comprehend/documents/" + gt_manifest_fname[:-8] + "txt"
+    ann_file = gt_manifest_folder + "/comprehend/annotations/" + gt_manifest_fname[:-8] + "csv"
     print("input_file, data_file, ann_file =", (input_file, data_file, ann_file))
 
     # Add tags to output.manifest to track conversion execution.
