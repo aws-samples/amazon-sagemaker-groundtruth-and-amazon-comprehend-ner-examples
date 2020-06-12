@@ -19,14 +19,15 @@ which contains:
 # Deployment from source template
 
 To still deploy your stack using the source template in this repository, rather
-than the one-click deployment described in the [blog post](), please follow these
-steps:
+than the one-click deployment described in the [blog post](), please follow
+these steps:
 
 1. Build Lambda layer: on your EC2 instance, run `bin/build-lambda-layer-s3fs-p38.sh`.
    Upload the resulted zip file `lambda-layer-s3fs-p38.zip` to your S3.
 
 2. Update `CloudFormation/template.yaml`, specifically resource `S3fsP38Layer`
-   to point to the layer file from step 1. After modifications, it should look like this:
+   to point to the layer file from step 1. After modifications, it should look
+   like this:
 
    ```yaml
     S3fsP38Layer:
@@ -39,7 +40,8 @@ steps:
         ...
    ```
 
-3. Package and upload the CloudFormation template to your S3. Make sure that you deploy to the same region as the layer zip's S3 location.
+3. Package and upload the CloudFormation template to your S3. Make sure that you
+   deploy to the same region as the layer zip's S3 location.
 
     ```bash
     cd CloudFormation/
