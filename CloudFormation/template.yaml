@@ -7,7 +7,7 @@ Description: >
   Converter
 
   SAM Template for a function to convert an Amazon SageMaker GroundTruth NER
-  augmented manifest to the CoNLL-2003 format.
+  augmented manifest to the Amazon Comprehend format.
 
 Parameters:
   AccountId:
