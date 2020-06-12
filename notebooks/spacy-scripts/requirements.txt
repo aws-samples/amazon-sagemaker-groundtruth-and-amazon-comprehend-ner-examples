@@ -1,2 +1,0 @@
-spacy
-en-core-web-sm-mirror
