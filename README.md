@@ -8,12 +8,14 @@ checkout [MultiClass](https://docs.aws.amazon.com/comprehend/latest/dg/how-docum
 and [MultiLabel](https://docs.aws.amazon.com/comprehend/latest/dg/how-document-classification-training-multi-label.html)
 documentation for more details respectively.*
 
-This repository contains the source CloudFormation template that the [blog post]()
+This repository contains the source CloudFormation template that this
+[blog post](https://aws.amazon.com/blogs/machine-learning/developing-ner-models-with-amazon-sagemaker-ground-truth-and-amazon-comprehend/)
 uses to setup the data conversion pipeline, and sample corpus.
 
 It is recommended to deploy a stack by following the instructions contained in
-the [blog post](). Once the stack is deployed, you can then upload the sample
-corpus to your new bucket.
+the [blog post](https://aws.amazon.com/blogs/machine-learning/developing-ner-models-with-amazon-sagemaker-ground-truth-and-amazon-comprehend/).
+Once the stack is deployed, you can then upload the sample corpus to your new
+bucket.
 
 We also recommend that you check out <https://github.com/aws-samples/amazon-comprehend-examples/>
 which contains:
