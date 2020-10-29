@@ -1,5 +1,13 @@
 # Companion Codes for AWS Blog Post *Developing NER models with Amazon SageMaker Ground Truth and Amazon Comprehend*
 
+**Update October 2020:** *Amazon Comprehend now supports Amazon SageMaker
+GroundTruth to help label your datasets for Comprehend's Custom Model training.
+For Custom EntityRecognizer, checkout [Annotations](https://docs.aws.amazon.com/comprehend/latest/dg/cer-annotation.html)
+documentation for more details. For Custom MultiClass and MultiLabel Classifier,
+checkout [MultiClass](https://docs.aws.amazon.com/comprehend/latest/dg/how-document-classification-training-multi-class.html)
+and [MultiLabel](https://docs.aws.amazon.com/comprehend/latest/dg/how-document-classification-training-multi-label.html)
+documentation for more details respectively.*
+
 This repository contains the source CloudFormation template that the [blog post]()
 uses to setup the data conversion pipeline, and sample corpus.
 
