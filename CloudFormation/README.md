@@ -1,4 +1,4 @@
-# Convert Amazon SageMaker Ground Truth output manifest to Amazon Comprehend Custom format
+# SAM to convert Amazon SageMaker Ground Truth output manifest to Amazon Comprehend Custom format
 
 This project contains source code and supporting files for a serverless application that you can deploy with the SAM CLI. It includes the following files and folders.
 
